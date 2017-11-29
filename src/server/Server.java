@@ -18,103 +18,119 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class Server extends JFrame implements ActionListener{
+public class Server extends JFrame implements ActionListener {
 
-	private JButton close;
-	public JTextArea user;
-	private ServerSocket server;
-	public Hashtable<String, ClientConnect> listUser;
+    private JButton close;
+    public JTextArea user;
+    private ServerSocket server;
+    public Hashtable<String, ClientConnect> listUser;
 
-	public Server(){
-		super("Chat Chit : Server");
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-		this.addWindowListener(new WindowAdapter(){
-			public void windowClosing(WindowEvent e){
-				try {
-					//gởi tin nhắn tới tất cả client
-					server.close();
-					System.exit(0);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
-		setSize(400, 400);
-		addItem();
-		setVisible(true);
-	}
+    public Server() {
+        super("Chat Chit : Server");
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        this.addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                try {
+                    //gởi tin nhắn tới tất cả client
+                    server.close();
+                    System.exit(0);
+                } catch (IOException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        });
+        setSize(400, 400);
+        addItem();
+        setVisible(true);
+    }
 
-	private void addItem() {
-		setLayout(new BorderLayout());
+    private void addItem() {
+        setLayout(new BorderLayout());
 
-		add(new JLabel("Trạng thái server : \n"),BorderLayout.NORTH);
-		add(new JPanel(),BorderLayout.EAST);
-		add(new JPanel(),BorderLayout.WEST);
+        add(new JLabel("Trạng thái server : \n"), BorderLayout.NORTH);
+        add(new JPanel(), BorderLayout.EAST);
+        add(new JPanel(), BorderLayout.WEST);
 
-		user = new JTextArea(10,20);
-		user.setEditable(false);
-		add(new JScrollPane(user),BorderLayout.CENTER);
+        user = new JTextArea(10, 20);
+        user.setEditable(false);
+        add(new JScrollPane(user), BorderLayout.CENTER);
 
-		close = new JButton("Close Server");
-		close.addActionListener(this);
-		add(close,BorderLayout.SOUTH);
+        close = new JButton("Close Server");
+        close.addActionListener(this);
+        add(close, BorderLayout.SOUTH);
 
-		user.append("Máy chủ đã được mở.\n");
-	}
+        user.append("Máy chủ đã được mở.\n");
+    }
 
-	private void go(){
-		try {
-			listUser = new Hashtable<String, ClientConnect>();
-			server = new ServerSocket(2207);
-			user.append("Máy chủ bắt đầu phục vụ\n");
-			while(true){
-				Socket client = server.accept();
-				new ClientConnect(this,client);
-			}
-		} catch (IOException e) {
-			user.append("Không thể khởi động máy chủ\n");
-		}
-	}
+    private void go() {
+        try {
+            listUser = new Hashtable<String, ClientConnect>();
+            server = new ServerSocket(3000);
+            user.append("Máy chủ bắt đầu phục vụ\n");
+            while (true) {
+                Socket client = server.accept();
+                new ClientConnect(this, client);
+            }
+        } catch (IOException e) {
+            user.append("Không thể khởi động máy chủ\n");
+        }
+    }
 
-	public static void main(String[] args) {
-		new Server().go();
-	}
+    public static void main(String[] args) {
+        new Server().go();
+    }
 
-	public void actionPerformed(ActionEvent e) {
-			try {
-				server.close();
-			} catch (IOException e1) {
-				user.append("Không thể dừng được máy chủ\n");
-			}
-			System.exit(0);
-	}
+    public void actionPerformed(ActionEvent e) {
+        try {
+            server.close();
+        } catch (IOException e1) {
+            user.append("Không thể dừng được máy chủ\n");
+        }
+        System.exit(0);
+    }
 
-	public void sendAll(String from, String msg){
-		Enumeration e = listUser.keys();
-		String name=null;
-		while(e. hasMoreElements()){
-			name=(String) e.nextElement();
-			//System.out.println(name);
-			if(name.compareTo(from)!=0) listUser.get(name).sendMSG("3",msg);
-		}
-	}
-	public void sendAllUpdate(String from){
-		Enumeration e = listUser.keys();
-		String name=null;
-		while(e. hasMoreElements()){
-			name=(String) e.nextElement();
-			//System.out.println(name);
-			if(name.compareTo(from)!=0) listUser.get(name).sendMSG("4",getAllName());
-		}
-	}
+    public void sendAll(String from, String msg) {
+        Enumeration e = listUser.keys();
+        String name = null;
+        while (e.hasMoreElements()) {
+            name = (String) e.nextElement();
+            //System.out.println(name);
+            if (name.compareTo(from) != 0) {
+                listUser.get(name).sendMSG("3", msg);
+            }
+        }
+    }
 
-	public String getAllName(){
-		Enumeration e = listUser.keys();
-		String name="";
-		while(e. hasMoreElements()){
-			name+=(String) e.nextElement()+"\n";
-		}
-		return name;
-	}
+    public void sendtoUser(String from, String msg, String to) {
+        Enumeration e = listUser.keys();
+        String name = null;
+        while(e.hasMoreElements()){
+            name = (String) e.nextElement();
+            if(name.compareTo(from)!=0){
+                listUser.get(name).sendMSG("3", msg);
+            }
+        }
+    }
+
+    public void sendAllUpdate(String from) {
+        Enumeration e = listUser.keys();
+        String name = null;
+        while (e.hasMoreElements()) {
+            name = (String) e.nextElement();
+            //System.out.println(name);
+            if (name.compareTo(from) != 0) {
+                listUser.get(name).sendMSG("4", getAllName());
+            }
+        }
+    }
+
+    public String getAllName() {
+        Enumeration e = listUser.keys();
+        String name = "";
+        while (e.hasMoreElements()) {
+            name += (String) e.nextElement() + "\n";
+        }
+        return name;
+    }
 
 }

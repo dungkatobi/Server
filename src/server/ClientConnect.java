@@ -121,4 +121,7 @@ public class ClientConnect extends Thread {
         sendMSG("4");
         sendMSG(name);
     }
+    private void displayToUser(){
+        
+    }
 }
